@@ -37,7 +37,7 @@ class PaymentTest {
     assertEquals("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1", payment.getId());
     assertEquals("BANK_TRANSFER", payment.getMethod());
     assertSame(this.paymentData, payment.getPaymentData());
-    assertEquals("WAITING_PAYMENT", payment.getStatus());
+    assertEquals("PENDING", payment.getStatus());
   }
 
   @Test
