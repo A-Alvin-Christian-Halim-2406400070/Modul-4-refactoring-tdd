@@ -6,11 +6,12 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class PaymentRepository {
+public class PaymentRepository implements PaymentRepositoryInterface {
 
   private List<Payment> paymentData = new ArrayList<>();
 
-  public Payment save(Payment payment) {
+  @Override
+  public Payment add(Payment payment) {
     int i = 0;
     for (Payment savedPayment : paymentData) {
       if (savedPayment.getId().equals(payment.getId())) {
@@ -25,6 +26,7 @@ public class PaymentRepository {
     return payment;
   }
 
+  @Override
   public Payment findById(String id) {
     for (Payment savedPayment : paymentData) {
       if (savedPayment.getId().equals(id)) {
@@ -34,7 +36,8 @@ public class PaymentRepository {
     return null;
   }
 
+  @Override
   public List<Payment> findAll() {
-    return paymentData;
+    return new ArrayList<>(paymentData);
   }
 }
