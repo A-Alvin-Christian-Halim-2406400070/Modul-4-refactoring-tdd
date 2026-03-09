@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import id.ac.ui.cs.advprog.eshop.enums.PaymentStatus;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,15 +38,15 @@ class PaymentTest {
     assertEquals("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1", payment.getId());
     assertEquals("BANK_TRANSFER", payment.getMethod());
     assertSame(this.paymentData, payment.getPaymentData());
-    assertEquals("PENDING", payment.getStatus());
+    assertEquals(PaymentStatus.PENDING.getValue(), payment.getStatus());
   }
 
   @Test
   void testCreatePaymentSuccessStatus() {
     Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
-        "BANK_TRANSFER", this.paymentData, "SUCCESS");
+        "BANK_TRANSFER", this.paymentData, PaymentStatus.SUCCESS.getValue());
 
-    assertEquals("SUCCESS", payment.getStatus());
+    assertEquals(PaymentStatus.SUCCESS.getValue(), payment.getStatus());
   }
 
   @Test
@@ -61,8 +62,8 @@ class PaymentTest {
     Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
         "BANK_TRANSFER", this.paymentData);
 
-    payment.setStatus("CANCELLED");
-    assertEquals("CANCELLED", payment.getStatus());
+    payment.setStatus(PaymentStatus.CANCELLED.getValue());
+    assertEquals(PaymentStatus.CANCELLED.getValue(), payment.getStatus());
   }
 
   @Test
