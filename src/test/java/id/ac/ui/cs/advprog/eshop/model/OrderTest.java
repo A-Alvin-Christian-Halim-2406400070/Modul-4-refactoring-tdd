@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.eshop.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -87,6 +86,6 @@ class OrderTest {
     assertThrows(IllegalArgumentException.class, () -> order.setStatus("MEOW"));
   }
 
-  
+
 
 }
