@@ -60,8 +60,8 @@ class PaymentServiceTest {
         products, 1708560000L, "Safira Sudrajat");
 
     this.paymentData = new HashMap<>();
-    this.paymentData.put("bank", "BCA");
-    this.paymentData.put("accountNumber", "1234567890");
+    this.paymentData.put("bankName", "BCA");
+    this.paymentData.put("referenceCode", "INV-123456");
 
     this.payment = new Payment(order.getId(), PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData);
   }
@@ -76,7 +76,7 @@ class PaymentServiceTest {
     assertEquals(order.getId(), result.getId());
     assertEquals(PaymentMethod.BANK_TRANSFER.getValue(), result.getMethod());
     assertSame(paymentData, result.getPaymentData());
-    assertEquals(PaymentStatus.PENDING.getValue(), result.getStatus());
+    assertEquals(PaymentStatus.SUCCESS.getValue(), result.getStatus());
   }
 
   @Test
