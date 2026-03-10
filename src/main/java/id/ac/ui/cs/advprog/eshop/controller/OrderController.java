@@ -2,11 +2,14 @@ package id.ac.ui.cs.advprog.eshop.controller;
 
 import id.ac.ui.cs.advprog.eshop.model.Order;
 import id.ac.ui.cs.advprog.eshop.model.Payment;
+import id.ac.ui.cs.advprog.eshop.model.Product;
 import id.ac.ui.cs.advprog.eshop.service.OrderService;
 import id.ac.ui.cs.advprog.eshop.service.PaymentService;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,6 +36,35 @@ public class OrderController {
 
   @GetMapping("/create")
   public String createOrderPage() {
+    return VIEW_CREATE_ORDER;
+  }
+
+  @PostMapping("/create")
+  public String createOrderPost(@RequestParam("author") String author, Model model) {
+    if (author == null || author.trim().isEmpty()) {
+      model.addAttribute("errorMessage", "Author name is required");
+      return VIEW_CREATE_ORDER;
+    }
+
+    Product product = new Product();
+    product.setProductName("Auto-generated Item");
+    product.setProductQuantity(1);
+
+    List<Product> products = new ArrayList<>();
+    products.add(product);
+
+    Order order = new Order(
+        UUID.randomUUID().toString(),
+        products,
+        System.currentTimeMillis(),
+        author.trim()
+    );
+
+    Order createdOrder = orderService.createOrder(order);
+    if (createdOrder == null) {
+      model.addAttribute("errorMessage", "Failed to create order");
+      return VIEW_CREATE_ORDER;
+    }
     return VIEW_CREATE_ORDER;
   }
 
