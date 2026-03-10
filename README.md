@@ -101,3 +101,24 @@ For example if the controllers are not split, 1 single change to the code for th
 2. Harder to expand code
 Say you want to add a new repository whose sole purpose is to read data. If we do not split the repository interface then that repository would be forced to implement unnecessary functions (e.g edit,create,delete). This would make it harder to expand the functionality as we need to think of what to do with those unnecessary functions. It would also make our code harder to read as there are more functions
 </details>
+
+<details>
+<summary>Modul 4 Refactoring & TDD</summary>
+
+> 1. Reflect based on Percival (2017) proposed self-reflective questions (in “Principles and Best Practice of Testing” submodule, chapter “Evaluating Your Testing Objectives”), whether this
+TDD flow is useful enough for you or not. If not, explain things that you need to do next time
+you make more tests.
+
+Menurut saya TDD workflow yang saya lakukan di modul kali ini sangat membantu saya. Karena sudah adanya test cases sejak awal, saya dapat dengan mudah test fitur yang saya develop apakah ada bug atau tidak. Saya tidak perlu manual mencoba untuk run programmya lagi coba-coba fitur tersebut. Selain itu, dalam workflow ini saya juga mengintegrasikan functional testing untuk setiap fitur sehingga saya lebih yakin bahwa fitur saya bekerja dengan semestinya. Test coverage dari program ini juga sudah 100% sehingga akan membantu meminimalisir kemungkinan edge-cases yang terlewat.
+
+Namun saya menyadari bahwa tests saya saat ini sangat minim dokumentasi. Hal ini dapat mempersulit jika ada keperluan refactoring tests ataupun debugging tentang mengapa sebuah test gagaol ketika ditambah fitur baru. Maka sebagai peningkatan, saya perlu mendokumentasikan setiap unit tests dan functional tests agar lebih maintainable kedepannya. Selain itu workflow saya saat ini belum terlalu linear, kadang saya membuat unit tests untuk fitur yang lain sementara fitur yang saya sedang kerjakan belum terimplementasi dengan baik. Kedepannya saya akan memperbaiki workflow saya sehingga TDD yang dilakukan dapat memberikan manfaat yang lebih banyak.
+
+> 2. You have created unit tests in Tutorial. Now reflect whether your tests have successfully
+followed F.I.R.S.T. principle or not. If not, explain things that you need to do the next time you
+create more tests.
+
+Menurut saya unit test yang saya buat sudah memenuhi F.I.R.S.T principle. Pertama dari segi Fast, unit tests saya berjalan dengan cepat karena testnya hanya berfokus pada unit kecil dalam kode saya. Dengan ini saya dapat mengurangi waktu menunggu tests berjalan ketika development. Lalu dari segi Independent, semua unit tests saya dapat berjalan dengan baik tanpa perlunya class unit tests lainnya.
+
+Dari segi Repeatable dan Self validating, saya sudah menjalankan unit tests saya berkali-kali dan hasilnya selalu konsisten antar run. Selain itu unit tests yang saya buat juga menunjukkan hasil passed or failed dengan jelas sehingga saya tidak perlu cek secara mandiri. Terakhir dari segi timely sebagian besar dari unit tests saya sudah mengikuti workflow TDD dan mengcover semua happy dan unhappy paths. Namun untuk functional tests saya, terkadang saya melewatkan beberapa unhappy paths yang baru saya sadari ketika fitur sudah diimplementasi dan saya cek code coveragenya. Sehingga dari aspek tersebut masih dapat saya berbaiki dan tingkatkan.
+
+</details>
