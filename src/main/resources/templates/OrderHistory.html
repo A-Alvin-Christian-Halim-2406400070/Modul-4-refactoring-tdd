@@ -6,15 +6,29 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 </head>
 <body>
+<nav class="navbar navbar-expand navbar-light bg-light mb-4">
+    <a class="navbar-brand" th:href="@{/}">ADV Shop</a>
+    <div class="navbar-nav">
+        <a class="nav-item nav-link" th:href="@{/product/list}">Products</a>
+        <a class="nav-item nav-link active" th:href="@{/order/history}">Orders</a>
+        <a class="nav-item nav-link" th:href="@{/payment/detail}">Payments</a>
+        <a class="nav-item nav-link" th:href="@{/payment/admin/list}">Payment Admin</a>
+    </div>
+</nav>
+
 <div class="container my-4">
     <h3>Order History</h3>
-    <p>Find all orders by author name.</p>
+    <div class="mb-3">
+        <a th:href="@{/order/create}" class="btn btn-primary btn-sm">Create Order</a>
+    </div>
     <form th:action="@{/order/history}" method="post">
         <div class="form-group">
             <label for="authorInput">Author Name</label>
             <input id="authorInput" name="author" type="text" class="form-control mb-3 col-5" placeholder="Enter author name" required>
         </div>
         <button id="searchHistoryButton" type="submit" class="btn btn-primary">Search</button>
+        <a th:href="@{/product/list}" class="btn btn-link">Back to Products</a>
+        <a th:href="@{/payment/detail}" class="btn btn-link">Go to Payments</a>
     </form>
 </div>
 </body>
