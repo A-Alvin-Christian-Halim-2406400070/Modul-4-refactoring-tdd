@@ -151,4 +151,31 @@ class OrderFunctionalTest {
         assertEquals("Payment Created", driver.findElement(By.tagName("h3")).getText());
         assertEquals("REJECTED", driver.findElement(By.xpath("//strong[text()='Status:']/following-sibling::span")).getText());
     }
+
+    @Test
+    void testPostCreateOrderPageCreatesOrderVisibleInHistory(ChromeDriver driver) {
+        String newAuthor = "new-author-" + UUID.randomUUID();
+
+        goToCreateOrderFromHome(driver);
+        driver.findElement(By.id("authorInput")).sendKeys(newAuthor);
+        driver.findElement(By.id("createOrderButton")).click();
+
+        goToOrderHistoryFromHome(driver);
+        driver.findElement(By.id("authorInput")).sendKeys(newAuthor);
+        driver.findElement(By.id("searchHistoryButton")).click();
+
+        assertEquals(baseUrl + "/order/history", driver.getCurrentUrl());
+        assertFalse(driver.findElements(By.xpath("//table//tr[td[2][normalize-space()='" + newAuthor + "']]")).isEmpty());
+    }
+
+    @Test
+    void testPostCreateOrderPageWithBlankAuthorStaysOnCreatePage(ChromeDriver driver) {
+        goToCreateOrderFromHome(driver);
+        driver.findElement(By.id("authorInput")).sendKeys("   ");
+        driver.findElement(By.id("createOrderButton")).click();
+
+        assertTrue(driver.getCurrentUrl().contains("/order/create"));
+        assertEquals("Create Order", driver.getTitle());
+        assertFalse(driver.findElements(By.id("authorInput")).isEmpty());
+    }
 }
