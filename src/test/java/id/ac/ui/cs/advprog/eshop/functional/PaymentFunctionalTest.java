@@ -19,6 +19,7 @@ import id.ac.ui.cs.advprog.eshop.repository.PaymentRepositoryInterface;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -45,7 +46,7 @@ class PaymentFunctionalTest {
     void setUpTest() {
         baseUrl = String.format("%s:%d", testBaseUrl, serverPort);
 
-        seededPaymentId = "payment-functional-id";
+        seededPaymentId = UUID.randomUUID().toString();
         Map<String, String> paymentData = new HashMap<>();
         paymentData.put("bankName", "BCA");
         paymentData.put("referenceCode", "INV-123456");
@@ -57,9 +58,19 @@ class PaymentFunctionalTest {
         paymentRepository.add(seededPayment);
     }
 
+    private void goToPaymentDetailFromHome(ChromeDriver driver) {
+        driver.get(baseUrl + "/");
+        driver.findElement(By.cssSelector("a[href='/payment/detail']")).click();
+    }
+
+    private void goToPaymentAdminListFromHome(ChromeDriver driver) {
+        driver.get(baseUrl + "/");
+        driver.findElement(By.cssSelector("a[href='/payment/admin/list']")).click();
+    }
+
     @Test
     void testGetPaymentDetailPage(ChromeDriver driver) {
-        driver.get(baseUrl + "/payment/detail");
+        goToPaymentDetailFromHome(driver);
 
         assertEquals("Payment Detail", driver.getTitle());
         assertFalse(driver.findElements(By.id("paymentIdInput")).isEmpty());
@@ -68,7 +79,9 @@ class PaymentFunctionalTest {
 
     @Test
     void testGetPaymentDetailByIdPage(ChromeDriver driver) {
-        driver.get(baseUrl + "/payment/detail/" + seededPaymentId);
+        goToPaymentDetailFromHome(driver);
+        driver.findElement(By.id("paymentIdInput")).sendKeys(seededPaymentId);
+        driver.findElement(By.id("findPaymentButton")).click();
 
         assertEquals(baseUrl + "/payment/detail/" + seededPaymentId, driver.getCurrentUrl());
         assertEquals("Payment Detail", driver.getTitle());
@@ -76,8 +89,20 @@ class PaymentFunctionalTest {
     }
 
     @Test
+    void testGetPaymentDetailByUnknownIdPageShowsNotFoundMessage(ChromeDriver driver) {
+        String unknownPaymentId = "unknown-" + UUID.randomUUID();
+        goToPaymentDetailFromHome(driver);
+        driver.findElement(By.id("paymentIdInput")).sendKeys(unknownPaymentId);
+        driver.findElement(By.id("findPaymentButton")).click();
+
+        assertEquals(baseUrl + "/payment/detail/" + unknownPaymentId, driver.getCurrentUrl());
+        assertEquals("Payment Detail", driver.getTitle());
+        assertFalse(driver.findElements(By.xpath("//*[contains(text(),'Payment not found for ID:')]")).isEmpty());
+    }
+
+    @Test
     void testGetPaymentAdminListPage(ChromeDriver driver) {
-        driver.get(baseUrl + "/payment/admin/list");
+        goToPaymentAdminListFromHome(driver);
 
         assertEquals("Payment Admin List", driver.getTitle());
         assertFalse(driver.findElements(By.id("paymentTable")).isEmpty());
@@ -86,7 +111,8 @@ class PaymentFunctionalTest {
 
     @Test
     void testGetPaymentAdminDetailPage(ChromeDriver driver) {
-        driver.get(baseUrl + "/payment/admin/detail/" + seededPaymentId);
+        goToPaymentAdminListFromHome(driver);
+        driver.findElement(By.id("view-admin-detail-btn-" + seededPaymentId)).click();
 
         assertEquals("Payment Admin Detail", driver.getTitle());
         assertFalse(driver.findElements(By.id("acceptPaymentButton")).isEmpty());
@@ -95,7 +121,8 @@ class PaymentFunctionalTest {
 
     @Test
     void testPostPaymentAdminSetStatusPage(ChromeDriver driver) {
-        driver.get(baseUrl + "/payment/admin/detail/" + seededPaymentId);
+        goToPaymentAdminListFromHome(driver);
+        driver.findElement(By.id("view-admin-detail-btn-" + seededPaymentId)).click();
         driver.findElement(By.id("acceptPaymentButton")).click();
 
         String currentUrl = driver.getCurrentUrl();
@@ -109,6 +136,26 @@ class PaymentFunctionalTest {
             assertEquals("SUCCESS", updatedStatus.get(0).getText());
         } else {
             assertEquals("SUCCESS", detailStatus.get(0).getText());
+        }
+    }
+
+    @Test
+    void testPostPaymentAdminSetRejectedStatusPage(ChromeDriver driver) {
+        goToPaymentAdminListFromHome(driver);
+        driver.findElement(By.id("view-admin-detail-btn-" + seededPaymentId)).click();
+        driver.findElement(By.id("rejectPaymentButton")).click();
+
+        String currentUrl = driver.getCurrentUrl();
+        assertTrue(currentUrl.contains("/payment/admin"));
+
+        List<WebElement> updatedStatus = driver.findElements(By.id("updatedStatusText"));
+        List<WebElement> detailStatus = driver.findElements(By.id("paymentStatusText"));
+        assertTrue(!updatedStatus.isEmpty() || !detailStatus.isEmpty());
+
+        if (!updatedStatus.isEmpty()) {
+            assertEquals("REJECTED", updatedStatus.get(0).getText());
+        } else {
+            assertEquals("REJECTED", detailStatus.get(0).getText());
         }
     }
 }
