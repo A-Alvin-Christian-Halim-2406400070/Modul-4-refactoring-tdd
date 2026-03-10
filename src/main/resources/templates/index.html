@@ -3,13 +3,51 @@
 <head>
     <meta charset="UTF-8" />
     <title>ADV Shop</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <style>
-        #viewProductsButton {
-        }
+        #viewProductsButton {}
     </style>
 </head>
 <body>
-    <h3>Welcome</h3>
-    <a th:href="@{/product/list}"><button type="button" id="viewProductsButton">View Products</button></a>
+    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+        <a class="navbar-brand" th:href="@{/}">ADV Shop</a>
+        <div class="navbar-nav">
+            <a class="nav-item nav-link" th:href="@{/product/list}">Products</a>
+            <a class="nav-item nav-link" th:href="@{/order/history}">Orders</a>
+            <a class="nav-item nav-link" th:href="@{/payment/detail}">Payments</a>
+            <a class="nav-item nav-link" th:href="@{/payment/admin/list}">Payment Admin</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h3>Welcome</h3>
+        <p class="text-muted mb-4">Manage products, orders, and payments from one place.</p>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 p-3">
+                    <h5 class="mb-2">Product</h5>
+                    <p class="mb-3">Create and maintain product catalog before placing or paying orders.</p>
+                    <a th:href="@{/product/list}">
+                        <button type="button" id="viewProductsButton" class="btn btn-primary">View Products</button>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 p-3">
+                    <h5 class="mb-2">Order</h5>
+                    <p class="mb-3">Create a new order or review existing order history.</p>
+                    <a th:href="@{/order/create}" class="btn btn-outline-primary">Create Order</a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 p-3">
+                    <h5 class="mb-2">Payment</h5>
+                    <p class="mb-3">Track payment details and approval status.</p>
+                    <a th:href="@{/payment/detail}" class="btn btn-outline-primary">Open Payments</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -6,10 +6,24 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 </head>
 <body>
+<nav class="navbar navbar-expand navbar-light bg-light mb-4">
+    <a class="navbar-brand" th:href="@{/}">ADV Shop</a>
+    <div class="navbar-nav">
+        <a class="nav-item nav-link active" th:href="@{/product/list}">Products</a>
+        <a class="nav-item nav-link" th:href="@{/order/history}">Orders</a>
+        <a class="nav-item nav-link" th:href="@{/payment/detail}">Payments</a>
+        <a class="nav-item nav-link" th:href="@{/payment/admin/list}">Payment Admin</a>
+    </div>
+</nav>
 
 <div class="container my-2">
     <h2>Product List</h2>
-    <a id="createProductButton" th:href="@{/product/create}" class="btn btn-primary btn-sm mb-3">Create Product</a>
+    <div class="mb-3">
+        <a id="createProductButton" th:href="@{/product/create}" class="btn btn-primary btn-sm mr-1">Create Product</a>
+        <a th:href="@{/order/create}" class="btn btn-outline-secondary btn-sm mr-1">Create Order</a>
+        <a th:href="@{/order/history}" class="btn btn-outline-secondary btn-sm mr-1">Order History</a>
+        <a th:href="@{/payment/detail}" class="btn btn-outline-secondary btn-sm">Go to Payments</a>
+    </div>
 
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 

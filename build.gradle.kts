@@ -59,6 +59,8 @@ tasks.register<Test>("functionalTest") {
     filter {
         includeTestsMatching("*FunctionalTest")
     }
+
+    useJUnitPlatform()
 }
 
 tasks.withType<Test>().configureEach {
@@ -78,12 +80,15 @@ tasks.test{
     filter {
         excludeTestsMatching("*FunctionalTest")
     }
-
-    finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestReport{
-    dependsOn(tasks.test)
+    dependsOn(tasks.test, tasks.named("functionalTest"))
+    executionData(
+        fileTree(layout.buildDirectory.dir("jacoco")) {
+            include("test.exec", "functionalTest.exec")
+        }
+    )
     reports {
         xml.required = true
         html.required = true

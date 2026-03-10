@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,6 +84,54 @@ class ProductServiceImplTest {
         List<Product> result = svc.findAll();
         assertNotNull(result);
         verify(mockRepo).findAll();
+    }
+
+    @Test
+    void testCreateWithNullProductReturnsNull() {
+        Product result = productService.create(null);
+        assertNull(result);
+    }
+
+    @Test
+    void testCreateWithNonPositiveQuantityReturnsNull() {
+        Product invalid = new Product();
+        invalid.setProductId(UUID.randomUUID().toString());
+        invalid.setProductName("Invalid");
+        invalid.setProductQuantity(0);
+
+        Product result = productService.create(invalid);
+        assertNull(result);
+    }
+
+    @Test
+    void testDeleteProductByIdWithNullIdReturnsNull() {
+        assertNull(productService.deleteProductById(null));
+    }
+
+    @Test
+    void testDeleteProductByIdWhenProductNotFoundReturnsNull() {
+        when(productRepository.findById("missing")).thenReturn(null);
+        assertNull(productService.deleteProductById("missing"));
+    }
+
+    @Test
+    void testFindByIdWithNullIdReturnsNull() {
+        assertNull(productService.findById(null));
+    }
+
+    @Test
+    void testUpdateWithNullIdReturnsNull() {
+        Product p = new Product();
+        p.setProductId(UUID.randomUUID().toString());
+        p.setProductName("Sample");
+        p.setProductQuantity(1);
+
+        assertNull(productService.update(null, p));
+    }
+
+    @Test
+    void testUpdateWithNullProductReturnsNull() {
+        assertNull(productService.update("id", null));
     }
 
 }

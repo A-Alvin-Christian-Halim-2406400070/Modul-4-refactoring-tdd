@@ -1,12 +1,15 @@
 package id.ac.ui.cs.advprog.eshop.functional;
 
 import io.github.bonigarcia.seljup.SeleniumJupiter ;
+import java.time.Duration;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value ;
 import org.springframework.boot.test.context.SpringBootTest ;
 import org.springframework.boot.test.web.server.LocalServerPort ;
@@ -32,8 +35,10 @@ public class CreateProductFunctionalTest {
     @Test
     void testCreateValidProduct(ChromeDriver driver) {
         driver.get(baseUrl);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
         driver.findElement(By.id("createProductButton")).click();
+        wait.until(ExpectedConditions.urlToBe(baseUrl.replace("/list", "/create")));
         assertEquals(baseUrl.replace("/list", "/create"), driver.getCurrentUrl());
 
         driver.findElement(By.name("productName")).sendKeys("Sample Product");
@@ -43,7 +48,9 @@ public class CreateProductFunctionalTest {
         qty.sendKeys("10");
         driver.findElement(By.id("submitButton")).click();
 
+        wait.until(ExpectedConditions.urlToBe(baseUrl));
         assertEquals(baseUrl, driver.getCurrentUrl());
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//table/tbody/tr[last()]/td[1]")));
         String createdProductName = driver.findElement(By.xpath("//table/tbody/tr[last()]/td[1]")).getText();
         String createdProductQuantity = driver.findElement(By.xpath("//table/tbody/tr[last()]/td[2]" )).getText();
         assertEquals("Sample Product", createdProductName);
@@ -52,8 +59,10 @@ public class CreateProductFunctionalTest {
 
     void testInvalidCreateProductTemplate(ChromeDriver driver, String quantityInput, String expectedErrorMessage) {
         driver.get(baseUrl);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
         driver.findElement(By.id("createProductButton")).click();
+        wait.until(ExpectedConditions.urlToBe(baseUrl.replace("/list", "/create")));
         driver.findElement(By.name("productName")).sendKeys("Invalid Quantity Product");
 
         var qty = driver.findElement(By.name("productQuantity"));
@@ -61,7 +70,9 @@ public class CreateProductFunctionalTest {
         qty.sendKeys(quantityInput);
         driver.findElement(By.id("submitButton")).click();
 
+        wait.until(ExpectedConditions.urlToBe(baseUrl.replace("/list", "/create")));
         assertEquals(baseUrl.replace("/list", "/create"), driver.getCurrentUrl(),"creating a invalid product shouldn't redirect to list page");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("quantityError")));
         String errorMessage = driver.findElement(By.id("quantityError")).getText();
         assertEquals(expectedErrorMessage, errorMessage);
         WebElement errorElem = driver.findElement(By.id("quantityError"));
