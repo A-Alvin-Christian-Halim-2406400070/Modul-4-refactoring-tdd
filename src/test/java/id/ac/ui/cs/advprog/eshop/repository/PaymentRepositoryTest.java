@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import id.ac.ui.cs.advprog.eshop.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.eshop.enums.PaymentStatus;
 import id.ac.ui.cs.advprog.eshop.model.Payment;
 import java.util.ArrayList;
@@ -35,15 +36,15 @@ class PaymentRepositoryTest {
 
     payments = new ArrayList<>();
     Payment payment1 = new Payment("13652556-012a-4c07-b546-54eb1396d79b",
-        "BANK_TRANSFER", paymentData1);
+        PaymentMethod.BANK_TRANSFER.getValue(), paymentData1);
     payments.add(payment1);
 
     Payment payment2 = new Payment("7f9e15bb-4b15-42f4-aebc-c3af385fb078",
-        "BANK_TRANSFER", paymentData2);
+        PaymentMethod.BANK_TRANSFER.getValue(), paymentData2);
     payments.add(payment2);
 
     Payment payment3 = new Payment("e334ef40-9eff-4da8-9487-8ee697ecbf1e",
-        "BANK_TRANSFER", paymentData3);
+        PaymentMethod.BANK_TRANSFER.getValue(), paymentData3);
     payments.add(payment3);
   }
 

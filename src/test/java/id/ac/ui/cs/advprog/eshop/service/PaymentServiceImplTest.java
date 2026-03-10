@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import id.ac.ui.cs.advprog.eshop.enums.OrderStatus;
+import id.ac.ui.cs.advprog.eshop.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.eshop.enums.PaymentStatus;
 import id.ac.ui.cs.advprog.eshop.model.Order;
 import id.ac.ui.cs.advprog.eshop.model.Payment;
@@ -62,18 +63,18 @@ class PaymentServiceTest {
     this.paymentData.put("bank", "BCA");
     this.paymentData.put("accountNumber", "1234567890");
 
-    this.payment = new Payment(order.getId(), "BANK_TRANSFER", this.paymentData);
+    this.payment = new Payment(order.getId(), PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData);
   }
 
   @Test
   void testAddPayment() {
     doAnswer(invocation -> invocation.getArgument(0)).when(paymentRepository).add(any(Payment.class));
 
-    Payment result = paymentService.addPayment(order, "BANK_TRANSFER", paymentData);
+    Payment result = paymentService.addPayment(order, PaymentMethod.BANK_TRANSFER.getValue(), paymentData);
 
     verify(paymentRepository, times(1)).add(any(Payment.class));
     assertEquals(order.getId(), result.getId());
-    assertEquals("BANK_TRANSFER", result.getMethod());
+    assertEquals(PaymentMethod.BANK_TRANSFER.getValue(), result.getMethod());
     assertSame(paymentData, result.getPaymentData());
     assertEquals(PaymentStatus.PENDING.getValue(), result.getStatus());
   }
@@ -83,7 +84,7 @@ class PaymentServiceTest {
     Map<String, String> emptyData = new HashMap<>();
 
     assertThrows(IllegalArgumentException.class,
-        () -> paymentService.addPayment(order, "BANK_TRANSFER", emptyData));
+        () -> paymentService.addPayment(order, PaymentMethod.BANK_TRANSFER.getValue(), emptyData));
 
     verify(paymentRepository, times(0)).add(any(Payment.class));
   }
@@ -91,7 +92,15 @@ class PaymentServiceTest {
   @Test
   void testAddPaymentNullOrder() {
     assertThrows(IllegalArgumentException.class,
-        () -> paymentService.addPayment(null, "BANK_TRANSFER", paymentData));
+        () -> paymentService.addPayment(null, PaymentMethod.BANK_TRANSFER.getValue(), paymentData));
+
+    verify(paymentRepository, times(0)).add(any(Payment.class));
+  }
+
+  @Test
+  void testAddPaymentInvalidMethod() {
+    assertThrows(IllegalArgumentException.class,
+        () -> paymentService.addPayment(order, "MEOW", paymentData));
 
     verify(paymentRepository, times(0)).add(any(Payment.class));
   }
@@ -113,7 +122,7 @@ class PaymentServiceTest {
     doReturn(order).when(orderRepository).findById(payment.getId());
     doAnswer(invocation -> invocation.getArgument(0)).when(paymentRepository).add(any(Payment.class));
 
-    Payment result = paymentService.setStatus(payment, "REJECTED");
+    Payment result = paymentService.setStatus(payment, PaymentStatus.REJECTED.getValue());
 
     assertNotEquals(PaymentStatus.PENDING.getValue(), result.getStatus());
     assertEquals(OrderStatus.FAILED.getValue(), order.getStatus());
@@ -148,7 +157,7 @@ class PaymentServiceTest {
     List<Payment> payments = new ArrayList<>();
     payments.add(payment);
     payments.add(new Payment("7f9e15bb-4b15-42f4-aebc-c3af385fb078",
-        "BANK_TRANSFER", paymentData));
+        PaymentMethod.BANK_TRANSFER.getValue(), paymentData));
     doReturn(payments).when(paymentRepository).findAll();
 
     List<Payment> result = paymentService.getAllPayments();

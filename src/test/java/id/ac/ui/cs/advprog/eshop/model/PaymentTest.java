@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import id.ac.ui.cs.advprog.eshop.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.eshop.enums.PaymentStatus;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,17 +27,17 @@ class PaymentTest {
 
     assertThrows(IllegalArgumentException.class, () -> {
       Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
-          "BANK_TRANSFER", this.paymentData);
+          PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData);
     });
   }
 
   @Test
   void testCreatePaymentDefaultStatus() {
     Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
-        "BANK_TRANSFER", this.paymentData);
+        PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData);
 
     assertEquals("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1", payment.getId());
-    assertEquals("BANK_TRANSFER", payment.getMethod());
+    assertEquals(PaymentMethod.BANK_TRANSFER.getValue(), payment.getMethod());
     assertSame(this.paymentData, payment.getPaymentData());
     assertEquals(PaymentStatus.PENDING.getValue(), payment.getStatus());
   }
@@ -44,7 +45,7 @@ class PaymentTest {
   @Test
   void testCreatePaymentSuccessStatus() {
     Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
-        "BANK_TRANSFER", this.paymentData, PaymentStatus.SUCCESS.getValue());
+        PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData, PaymentStatus.SUCCESS.getValue());
 
     assertEquals(PaymentStatus.SUCCESS.getValue(), payment.getStatus());
   }
@@ -53,14 +54,22 @@ class PaymentTest {
   void testCreatePaymentInvalidStatus() {
     assertThrows(IllegalArgumentException.class, () -> {
       Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
-          "BANK_TRANSFER", this.paymentData, "MEOW");
+          PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData, "MEOW");
+    });
+  }
+
+  @Test
+  void testCreatePaymentInvalidMethod() {
+    assertThrows(IllegalArgumentException.class, () -> {
+      Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
+          "MEOW", this.paymentData);
     });
   }
 
   @Test
   void testSetStatusToCancelled() {
     Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
-        "BANK_TRANSFER", this.paymentData);
+        PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData);
 
     payment.setStatus(PaymentStatus.CANCELLED.getValue());
     assertEquals(PaymentStatus.CANCELLED.getValue(), payment.getStatus());
@@ -69,7 +78,7 @@ class PaymentTest {
   @Test
   void testSetStatusToInvalidStatus() {
     Payment payment = new Payment("a7f95c5e-9bf7-4a5f-8f20-7a7f6db5a6d1",
-        "BANK_TRANSFER", this.paymentData);
+        PaymentMethod.BANK_TRANSFER.getValue(), this.paymentData);
 
     assertThrows(IllegalArgumentException.class,
         () -> payment.setStatus("MEOW"));

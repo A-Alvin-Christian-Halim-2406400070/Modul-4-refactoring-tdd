@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import id.ac.ui.cs.advprog.eshop.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.eshop.enums.PaymentStatus;
 import id.ac.ui.cs.advprog.eshop.model.Order;
 import id.ac.ui.cs.advprog.eshop.model.Payment;
@@ -58,10 +59,10 @@ class PaymentVoucherCodeTest {
     Map<String, String> paymentData = new HashMap<>();
     paymentData.put("voucherCode", "ESHOP1234ABC5678");
 
-    Payment payment = paymentService.addPayment(order, "VOUCHER_CODE", paymentData);
+    Payment payment = paymentService.addPayment(order, PaymentMethod.VOUCHER_CODE.getValue(), paymentData);
 
     assertEquals(PaymentStatus.SUCCESS.getValue(), payment.getStatus());
-    assertEquals("VOUCHER_CODE", payment.getMethod());
+    assertEquals(PaymentMethod.VOUCHER_CODE.getValue(), payment.getMethod());
     assertEquals("ESHOP1234ABC5678", payment.getPaymentData().get("voucherCode"));
     verify(paymentRepository, times(1)).add(any(Payment.class));
   }
@@ -71,9 +72,9 @@ class PaymentVoucherCodeTest {
     Map<String, String> paymentData = new HashMap<>();
     paymentData.put("voucherCode", "ESHOP1234ABC567");
 
-    Payment payment = paymentService.addPayment(order, "VOUCHER_CODE", paymentData);
+    Payment payment = paymentService.addPayment(order, PaymentMethod.VOUCHER_CODE.getValue(), paymentData);
 
-    assertEquals("REJECTED", payment.getStatus());
+    assertEquals(PaymentStatus.REJECTED.getValue(), payment.getStatus());
     verify(paymentRepository, times(1)).add(any(Payment.class));
   }
 
@@ -82,9 +83,9 @@ class PaymentVoucherCodeTest {
     Map<String, String> paymentData = new HashMap<>();
     paymentData.put("voucherCode", "TOKOP1234ABC5678");
 
-    Payment payment = paymentService.addPayment(order, "VOUCHER_CODE", paymentData);
+    Payment payment = paymentService.addPayment(order, PaymentMethod.VOUCHER_CODE.getValue(), paymentData);
 
-    assertEquals("REJECTED", payment.getStatus());
+    assertEquals(PaymentStatus.REJECTED.getValue(), payment.getStatus());
     verify(paymentRepository, times(1)).add(any(Payment.class));
   }
 
@@ -93,9 +94,9 @@ class PaymentVoucherCodeTest {
     Map<String, String> paymentData = new HashMap<>();
     paymentData.put("voucherCode", "ESHOP12ABCD34EFG");
 
-    Payment payment = paymentService.addPayment(order, "VOUCHER_CODE", paymentData);
+    Payment payment = paymentService.addPayment(order, PaymentMethod.VOUCHER_CODE.getValue(), paymentData);
 
-    assertEquals("REJECTED", payment.getStatus());
+    assertEquals(PaymentStatus.REJECTED.getValue(), payment.getStatus());
     verify(paymentRepository, times(1)).add(any(Payment.class));
   }
 
@@ -104,9 +105,9 @@ class PaymentVoucherCodeTest {
     Map<String, String> paymentData = new HashMap<>();
     paymentData.put("code", "ESHOP1234ABC5678");
 
-    Payment payment = paymentService.addPayment(order, "VOUCHER_CODE", paymentData);
+    Payment payment = paymentService.addPayment(order, PaymentMethod.VOUCHER_CODE.getValue(), paymentData);
 
-    assertEquals("REJECTED", payment.getStatus());
+    assertEquals(PaymentStatus.REJECTED.getValue(), payment.getStatus());
     verify(paymentRepository, times(1)).add(any(Payment.class));
   }
 }
