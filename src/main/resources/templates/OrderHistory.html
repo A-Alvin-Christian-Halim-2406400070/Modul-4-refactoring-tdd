@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order History</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+</head>
+<body>
+<div class="container my-4">
+    <h3>Order History</h3>
+    <p>Find all orders by author name.</p>
+    <form th:action="@{/order/history}" method="post">
+        <div class="form-group">
+            <label for="authorInput">Author Name</label>
+            <input id="authorInput" name="author" type="text" class="form-control mb-3 col-5" placeholder="Enter author name" required>
+        </div>
+        <button id="searchHistoryButton" type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+</body>
+</html>

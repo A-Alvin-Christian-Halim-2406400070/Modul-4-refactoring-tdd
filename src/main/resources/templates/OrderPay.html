@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pay Order</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+</head>
+<body>
+<div class="container my-4">
+    <h3>Pay Order</h3>
+
+    <div class="mb-3">
+        <strong>Order ID:</strong>
+        <span th:text="${order != null ? order.id : orderId}"></span>
+    </div>
+
+    <form th:action="@{/order/pay/{orderId}(orderId=${order != null ? order.id : orderId})}" method="post">
+        <div class="form-group">
+            <label for="methodInput">Payment Method</label>
+            <select id="methodInput" name="method" class="form-control mb-3 col-5">
+                <option value="BANK_TRANSFER">BANK_TRANSFER</option>
+                <option value="VOUCHER_CODE">VOUCHER_CODE</option>
+            </select>
+        </div>
+
+        <h5>Bank Transfer Data</h5>
+        <div class="form-group">
+            <label for="bankNameInput">Bank Name</label>
+            <input id="bankNameInput" name="bankName" type="text" class="form-control mb-3 col-5" placeholder="Bank name">
+        </div>
+        <div class="form-group">
+            <label for="referenceCodeInput">Reference Code</label>
+            <input id="referenceCodeInput" name="referenceCode" type="text" class="form-control mb-3 col-5" placeholder="Reference code">
+        </div>
+
+        <h5>Voucher Code Data</h5>
+        <div class="form-group">
+            <label for="voucherCodeInput">Voucher Code</label>
+            <input id="voucherCodeInput" name="voucherCode" type="text" class="form-control mb-3 col-5" placeholder="Voucher code">
+        </div>
+
+        <button id="payOrderButton" type="submit" class="btn btn-success">Pay</button>
+    </form>
+</div>
+</body>
+</html>

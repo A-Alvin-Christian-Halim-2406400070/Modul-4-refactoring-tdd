@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Order</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+</head>
+<body>
+<div class="container my-4">
+    <h3>Create Order</h3>
+    <form th:action="@{/order/create}" method="post">
+        <div class="form-group">
+            <label for="authorInput">Author Name</label>
+            <input id="authorInput" name="author" type="text" class="form-control mb-3 col-5" placeholder="Enter your name" required>
+        </div>
+        <button id="createOrderButton" type="submit" class="btn btn-primary">Create Order</button>
+    </form>
+</div>
+</body>
+</html>
