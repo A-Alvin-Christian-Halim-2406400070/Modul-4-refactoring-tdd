@@ -7,6 +7,7 @@ public enum PaymentStatus {
   PENDING("PENDING"),
   FAILED("FAILED"),
   SUCCESS("SUCCESS"),
+  REJECTED("REJECTED"),
   CANCELLED("CANCELLED");
 
   private final String value;

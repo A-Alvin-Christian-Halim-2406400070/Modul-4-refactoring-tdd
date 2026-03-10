@@ -29,25 +29,26 @@ public class PaymentServiceImpl {
     }
 
     Payment payment = new Payment(order.getId(), method, paymentData);
+    if ("VOUCHER_CODE".equals(method)) {
+      String voucherCode = paymentData.get("voucherCode");
+      if (isValidVoucherCode(voucherCode)) {
+        payment.setStatus(PaymentStatus.SUCCESS.getValue());
+      } else {
+        payment.setStatus(PaymentStatus.REJECTED.getValue());
+      }
+    }
+
     paymentRepository.add(payment);
     return payment;
   }
 
   public Payment setStatus(Payment payment, String status) {
-    if ("REJECTED".equals(status)) {
-      payment.setStatus(PaymentStatus.FAILED.getValue());
-      Order order = orderRepository.findById(payment.getId());
-      if (order != null) {
-        order.setStatus(OrderStatus.FAILED.getValue());
-      }
-    } else {
-      payment.setStatus(status);
-      if (PaymentStatus.SUCCESS.getValue().equals(status)) {
-        Order order = orderRepository.findById(payment.getId());
-        if (order != null) {
-          order.setStatus(OrderStatus.SUCCESS.getValue());
-        }
-      }
+    payment.setStatus(status);
+    Order order = orderRepository.findById(payment.getId());
+    if (order != null && PaymentStatus.SUCCESS.getValue().equals(status)) {
+      order.setStatus(OrderStatus.SUCCESS.getValue());
+    } else if (order != null && PaymentStatus.REJECTED.getValue().equals(status)) {
+      order.setStatus(OrderStatus.FAILED.getValue());
     }
 
     paymentRepository.add(payment);
@@ -60,5 +61,14 @@ public class PaymentServiceImpl {
 
   public List<Payment> getAllPayments() {
     return paymentRepository.findAll();
+  }
+
+  private boolean isValidVoucherCode(String voucherCode) {
+    if (voucherCode == null || voucherCode.length() != 16 || !voucherCode.startsWith("ESHOP")) {
+      return false;
+    }
+
+    long numericCount = voucherCode.chars().filter(Character::isDigit).count();
+    return numericCount == 8;
   }
 }
