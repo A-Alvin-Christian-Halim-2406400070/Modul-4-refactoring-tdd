@@ -108,6 +108,27 @@ class ProductControllerTest {
     }
 
     @Test
+    void createProductWhenServiceReturnsNullShowsCreateProductWithInvalidQuantityError() {
+        when(service.create(any(Product.class))).thenReturn(null);
+
+        String view = controller.createProductPost("Phone", "7", model);
+
+        assertEquals("CreateProduct", view);
+        verify(service).create(any(Product.class));
+
+        ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(model).addAttribute(eq("product"), productCaptor.capture());
+        verify(model).addAttribute("productQuantityRaw", "7");
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Map<String, String>> errorsCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(model).addAttribute(eq("errors"), errorsCaptor.capture());
+
+        assertEquals("Phone", productCaptor.getValue().getProductName());
+        assertEquals("Invalid quantity", errorsCaptor.getValue().get("productQuantity"));
+    }
+
+    @Test
     void editProductPageWithInvalidIdReturnsEditProduct() {
         String view = controller.editProductPage("not-a-uuid", model);
 

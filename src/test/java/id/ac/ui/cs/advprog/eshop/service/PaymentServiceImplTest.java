@@ -20,6 +20,7 @@ import id.ac.ui.cs.advprog.eshop.model.Payment;
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import id.ac.ui.cs.advprog.eshop.repository.OrderRepository;
 import id.ac.ui.cs.advprog.eshop.repository.PaymentRepositoryInterface;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,6 +107,21 @@ class PaymentServiceTest {
   }
 
   @Test
+  void testAddPaymentWhenProcessorMissingThrowsIllegalArgumentException() throws Exception {
+    Field processorsField = PaymentServiceImpl.class.getDeclaredField("paymentSubFeatureProcessors");
+    processorsField.setAccessible(true);
+
+    @SuppressWarnings("unchecked")
+    Map<PaymentMethod, Object> processors = (Map<PaymentMethod, Object>) processorsField.get(paymentService);
+    processors.remove(PaymentMethod.BANK_TRANSFER);
+
+    assertThrows(IllegalArgumentException.class,
+        () -> paymentService.addPayment(order, PaymentMethod.BANK_TRANSFER.getValue(), paymentData));
+
+    verify(paymentRepository, times(0)).add(any(Payment.class));
+  }
+
+  @Test
   void testSetStatusToSuccessShouldUpdateOrderToSuccess() {
     doReturn(order).when(orderRepository).findById(payment.getId());
     doAnswer(invocation -> invocation.getArgument(0)).when(paymentRepository).add(any(Payment.class));
@@ -126,6 +142,32 @@ class PaymentServiceTest {
 
     assertNotEquals(PaymentStatus.PENDING.getValue(), result.getStatus());
     assertEquals(OrderStatus.FAILED.getValue(), order.getStatus());
+    verify(paymentRepository, times(1)).add(any(Payment.class));
+  }
+
+  @Test
+  void testSetStatusToRejectedWhenOrderNotFoundKeepsOrderUntouched() {
+    String initialOrderStatus = order.getStatus();
+    doReturn(null).when(orderRepository).findById(payment.getId());
+    doAnswer(invocation -> invocation.getArgument(0)).when(paymentRepository).add(any(Payment.class));
+
+    Payment result = paymentService.setStatus(payment, PaymentStatus.REJECTED.getValue());
+
+    assertEquals(PaymentStatus.REJECTED.getValue(), result.getStatus());
+    assertEquals(initialOrderStatus, order.getStatus());
+    verify(paymentRepository, times(1)).add(any(Payment.class));
+  }
+
+  @Test
+  void testSetStatusToPendingWhenOrderExistsKeepsOrderUntouched() {
+    String initialOrderStatus = order.getStatus();
+    doReturn(order).when(orderRepository).findById(payment.getId());
+    doAnswer(invocation -> invocation.getArgument(0)).when(paymentRepository).add(any(Payment.class));
+
+    Payment result = paymentService.setStatus(payment, PaymentStatus.PENDING.getValue());
+
+    assertEquals(PaymentStatus.PENDING.getValue(), result.getStatus());
+    assertEquals(initialOrderStatus, order.getStatus());
     verify(paymentRepository, times(1)).add(any(Payment.class));
   }
 

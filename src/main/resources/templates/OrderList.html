@@ -36,7 +36,7 @@
             <td th:text="${order.orderTime}"></td>
             <td th:text="${order.status}"></td>
             <td>
-                <a th:href="|/order/pay/${order.id}|" class="btn btn-primary btn-sm">Pay</a>
+                <a href="#" th:attr="href=|/order/pay/${order.id}|" class="btn btn-primary btn-sm">Pay</a>
             </td>
         </tr>
         </tbody>

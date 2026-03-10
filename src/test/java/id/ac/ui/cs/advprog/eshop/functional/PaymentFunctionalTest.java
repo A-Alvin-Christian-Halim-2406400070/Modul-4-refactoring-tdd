@@ -1,12 +1,14 @@
 package id.ac.ui.cs.advprog.eshop.functional;
 
 import io.github.bonigarcia.seljup.SeleniumJupiter;
+import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,6 +70,18 @@ class PaymentFunctionalTest {
         driver.findElement(By.cssSelector("a[href='/payment/admin/list']")).click();
     }
 
+    private String waitAndReadAdminStatus(ChromeDriver driver) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(d -> !d.findElements(By.id("updatedStatusText")).isEmpty()
+                || !d.findElements(By.id("paymentStatusText")).isEmpty());
+
+        List<WebElement> updatedStatus = driver.findElements(By.id("updatedStatusText"));
+        if (!updatedStatus.isEmpty()) {
+            return updatedStatus.get(0).getText();
+        }
+        return driver.findElement(By.id("paymentStatusText")).getText();
+    }
+
     @Test
     void testGetPaymentDetailPage(ChromeDriver driver) {
         goToPaymentDetailFromHome(driver);
@@ -127,16 +141,7 @@ class PaymentFunctionalTest {
 
         String currentUrl = driver.getCurrentUrl();
         assertTrue(currentUrl.contains("/payment/admin"));
-
-        List<WebElement> updatedStatus = driver.findElements(By.id("updatedStatusText"));
-        List<WebElement> detailStatus = driver.findElements(By.id("paymentStatusText"));
-        assertTrue(!updatedStatus.isEmpty() || !detailStatus.isEmpty());
-
-        if (!updatedStatus.isEmpty()) {
-            assertEquals("SUCCESS", updatedStatus.get(0).getText());
-        } else {
-            assertEquals("SUCCESS", detailStatus.get(0).getText());
-        }
+        assertEquals("SUCCESS", waitAndReadAdminStatus(driver));
     }
 
     @Test
@@ -147,15 +152,6 @@ class PaymentFunctionalTest {
 
         String currentUrl = driver.getCurrentUrl();
         assertTrue(currentUrl.contains("/payment/admin"));
-
-        List<WebElement> updatedStatus = driver.findElements(By.id("updatedStatusText"));
-        List<WebElement> detailStatus = driver.findElements(By.id("paymentStatusText"));
-        assertTrue(!updatedStatus.isEmpty() || !detailStatus.isEmpty());
-
-        if (!updatedStatus.isEmpty()) {
-            assertEquals("REJECTED", updatedStatus.get(0).getText());
-        } else {
-            assertEquals("REJECTED", detailStatus.get(0).getText());
-        }
+        assertEquals("REJECTED", waitAndReadAdminStatus(driver));
     }
 }

@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.eshop.model.Order;
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import id.ac.ui.cs.advprog.eshop.repository.OrderRepository;
 import io.github.bonigarcia.seljup.SeleniumJupiter;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,29 +64,50 @@ class OrderFunctionalTest {
     private void goToCreateOrderFromHome(ChromeDriver driver) {
         driver.get(baseUrl + "/");
         driver.findElement(By.cssSelector("a[href='/order/create']")).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.titleIs("Create Order"));
     }
 
     private void goToOrderHistoryFromHome(ChromeDriver driver) {
         driver.get(baseUrl + "/");
         driver.findElement(By.cssSelector("a[href='/order/history']")).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.titleIs("Order History"));
     }
 
     private void goToPayPageFromHome(ChromeDriver driver, String orderId) {
         goToOrderHistoryFromHome(driver);
         driver.findElement(By.id("authorInput")).sendKeys(SEEDED_ORDER_AUTHOR);
         driver.findElement(By.id("searchHistoryButton")).click();
-        driver.findElement(By.cssSelector("a[href='/order/pay/" + orderId + "']")).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[href='/order/pay/" + orderId + "']"))).click();
+    }
+
+    private void submitCreateOrderAndWait(ChromeDriver driver, String authorName) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebElement authorInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("authorInput")));
+        authorInput.clear();
+        authorInput.sendKeys(authorName);
+        driver.findElement(By.id("createOrderButton")).click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("createOrderButton")));
+        wait.until(d -> {
+            String value = d.findElement(By.id("authorInput")).getDomProperty("value");
+            return value == null || value.isEmpty();
+        });
     }
 
     private void createOrderThenOpenPayPage(ChromeDriver driver, String authorName) {
         goToCreateOrderFromHome(driver);
-        driver.findElement(By.id("authorInput")).sendKeys(authorName);
-        driver.findElement(By.id("createOrderButton")).click();
+        submitCreateOrderAndWait(driver, authorName);
 
         goToOrderHistoryFromHome(driver);
         driver.findElement(By.id("authorInput")).sendKeys(authorName);
         driver.findElement(By.id("searchHistoryButton")).click();
-        driver.findElement(By.xpath("//table//tr[td[2][normalize-space()='" + authorName + "']]//a[contains(@href,'/order/pay/')]")).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//table//tr[td[2][normalize-space()='" + authorName + "']]//a[contains(@href,'/order/pay/')]")
+        )).click();
     }
 
     @Test
@@ -122,6 +146,13 @@ class OrderFunctionalTest {
         driver.findElement(By.id("authorInput")).sendKeys("unknown-author-" + UUID.randomUUID());
         driver.findElement(By.id("searchHistoryButton")).click();
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.textToBe(By.tagName("h3"), "Orders"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(),'No orders found.')]")
+        ));
+        wait.until(ExpectedConditions.numberOfElementsToBe(By.cssSelector("table tbody tr"), 0));
+
         assertEquals(baseUrl + "/order/history", driver.getCurrentUrl());
         assertFalse(driver.findElements(By.xpath("//*[contains(text(),'No orders found.')]")).isEmpty());
         assertTrue(driver.findElements(By.cssSelector("table tbody tr")).isEmpty());
@@ -146,6 +177,9 @@ class OrderFunctionalTest {
         driver.findElement(By.id("referenceCodeInput")).sendKeys("INV-123456");
         driver.findElement(By.id("payOrderButton")).click();
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.textToBe(By.tagName("h3"), "Payment Created"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("paymentIdText")));
         assertEquals("Payment Created", driver.findElement(By.tagName("h3")).getText());
         assertFalse(driver.findElements(By.id("paymentIdText")).isEmpty());
     }
@@ -159,6 +193,12 @@ class OrderFunctionalTest {
         driver.findElement(By.id("voucherCodeInput")).sendKeys("INVALID");
         driver.findElement(By.id("payOrderButton")).click();
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.textToBe(By.tagName("h3"), "Payment Created"));
+        wait.until(ExpectedConditions.textToBe(
+                By.xpath("//strong[text()='Status:']/following-sibling::span"),
+                "REJECTED"
+        ));
         assertEquals("Payment Created", driver.findElement(By.tagName("h3")).getText());
         assertEquals("REJECTED", driver.findElement(By.xpath("//strong[text()='Status:']/following-sibling::span")).getText());
     }
@@ -168,15 +208,17 @@ class OrderFunctionalTest {
         String newAuthor = "new-author-" + UUID.randomUUID();
 
         goToCreateOrderFromHome(driver);
-        driver.findElement(By.id("authorInput")).sendKeys(newAuthor);
-        driver.findElement(By.id("createOrderButton")).click();
+        submitCreateOrderAndWait(driver, newAuthor);
 
         goToOrderHistoryFromHome(driver);
         driver.findElement(By.id("authorInput")).sendKeys(newAuthor);
         driver.findElement(By.id("searchHistoryButton")).click();
 
         assertEquals(baseUrl + "/order/history", driver.getCurrentUrl());
-        assertFalse(driver.findElements(By.xpath("//table//tr[td[2][normalize-space()='" + newAuthor + "']]")).isEmpty());
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        assertFalse(wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                By.xpath("//table//tr[td[2][normalize-space()='" + newAuthor + "']]")
+        )).isEmpty());
     }
 
     @Test
@@ -211,6 +253,9 @@ class OrderFunctionalTest {
         driver.findElement(By.id("referenceCodeInput")).sendKeys("INV-POST-" + UUID.randomUUID());
         driver.findElement(By.id("payOrderButton")).click();
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.textToBe(By.tagName("h3"), "Payment Created"));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("paymentIdText")));
         assertEquals("Payment Created", driver.findElement(By.tagName("h3")).getText());
         assertFalse(driver.findElements(By.id("paymentIdText")).isEmpty());
     }

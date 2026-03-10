@@ -75,7 +75,8 @@ public class OrderController {
 
   @PostMapping("/history")
   public String orderHistoryPost(@RequestParam("author") String author, Model model) {
-    List<Order> orders = orderService.findAllByAuthor(author);
+    String normalizedAuthor = author == null ? "" : author.trim();
+    List<Order> orders = orderService.findAllByAuthor(normalizedAuthor);
     model.addAttribute("orders", orders);
     return VIEW_ORDER_LIST;
   }
