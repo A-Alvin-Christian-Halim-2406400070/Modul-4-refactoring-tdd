@@ -75,6 +75,17 @@ class OrderFunctionalTest {
         driver.findElement(By.cssSelector("a[href='/order/pay/" + orderId + "']")).click();
     }
 
+    private void createOrderThenOpenPayPage(ChromeDriver driver, String authorName) {
+        goToCreateOrderFromHome(driver);
+        driver.findElement(By.id("authorInput")).sendKeys(authorName);
+        driver.findElement(By.id("createOrderButton")).click();
+
+        goToOrderHistoryFromHome(driver);
+        driver.findElement(By.id("authorInput")).sendKeys(authorName);
+        driver.findElement(By.id("searchHistoryButton")).click();
+        driver.findElement(By.xpath("//table//tr[td[2][normalize-space()='" + authorName + "']]//a[contains(@href,'/order/pay/')]")).click();
+    }
+
     @Test
     void testGetCreateOrderPage(ChromeDriver driver) {
         goToCreateOrderFromHome(driver);
@@ -177,5 +188,30 @@ class OrderFunctionalTest {
         assertTrue(driver.getCurrentUrl().contains("/order/create"));
         assertEquals("Create Order", driver.getTitle());
         assertFalse(driver.findElements(By.id("authorInput")).isEmpty());
+    }
+
+    @Test
+    void testGetPayOrderPageAfterCreateOrder(ChromeDriver driver) {
+        String newAuthor = "pay-get-author-" + UUID.randomUUID();
+        createOrderThenOpenPayPage(driver, newAuthor);
+
+        assertEquals("Pay Order", driver.getTitle());
+        assertFalse(driver.findElements(By.id("methodInput")).isEmpty());
+        assertFalse(driver.findElements(By.id("payOrderButton")).isEmpty());
+    }
+
+    @Test
+    void testPostPayOrderPageAfterCreateOrderReturnsPaymentId(ChromeDriver driver) {
+        String newAuthor = "pay-post-author-" + UUID.randomUUID();
+        createOrderThenOpenPayPage(driver, newAuthor);
+
+        WebElement methodSelect = driver.findElement(By.id("methodInput"));
+        new Select(methodSelect).selectByValue("BANK_TRANSFER");
+        driver.findElement(By.id("bankNameInput")).sendKeys("BCA");
+        driver.findElement(By.id("referenceCodeInput")).sendKeys("INV-POST-" + UUID.randomUUID());
+        driver.findElement(By.id("payOrderButton")).click();
+
+        assertEquals("Payment Created", driver.findElement(By.tagName("h3")).getText());
+        assertFalse(driver.findElements(By.id("paymentIdText")).isEmpty());
     }
 }
